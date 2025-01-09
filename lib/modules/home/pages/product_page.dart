@@ -61,24 +61,60 @@ class _ProductListScreenState extends State<ProductListScreen> {
               itemCount: products.length,
               itemBuilder: (context, index) {
                 final product = products[index];
-                return ListTile(
-                  title: Text(product['name']),
-                  subtitle: Text('${product['price']} USD'),
-                  leading: product['image_url'] != null
-                      ? Image.network(
-                          product['image_url'],
-                          width: 50,
-                          height: 50,
-                          fit: BoxFit.cover,
-                        )
-                      : Icon(Icons.image_not_supported),
-                  trailing: IconButton(
-                    icon: Icon(Icons.delete),
-                    onPressed: () {
-                      deleteProduct(product['id']);
-                    },
+                return Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(40.0),
+                        child: SizedBox(
+                          height: 400,
+                          width: 300,
+                          child: product['image_url'] != null
+                              ? Image.network(
+                                  product['image_url'],
+                                  // width: 50,
+                                  // height: 50,
+                                  fit: BoxFit.cover,
+                                )
+                              : Icon(
+                                  Icons.image_not_supported,
+                                  size: 100,
+                                ),
+                        ),
+                      ),
+                      Column(
+                        children: [
+                          Text(
+                            'name:${product['name']}',
+                            style: TextStyle(fontSize: 20),
+                          ),
+                          Text('price:${product['price']} USD'),
+                          Text('description:${product['description']} '),
+                        ],
+                      )
+                    ],
                   ),
                 );
+
+                // ListTile(
+                //   title: Text(product['name']),
+                //   subtitle: Text('${product['price']} USD'),
+                //   leading: product['image_url'] != null
+                //       ? Image.network(
+                //           product['image_url'],
+                //           width: 50,
+                //           height: 50,
+                //           fit: BoxFit.cover,
+                //         )
+                //       : Icon(Icons.image_not_supported),
+                //   trailing: IconButton(
+                //     icon: Icon(Icons.delete),
+                //     onPressed: () {
+                //       deleteProduct(product['id']);
+                //     },
+                //   ),
+                // );
               },
             ),
       floatingActionButton: FloatingActionButton(
