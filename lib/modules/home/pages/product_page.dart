@@ -13,6 +13,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   List<Map<String, dynamic>> products = [];
   bool isLoading = true;
 
+  bool isAuthorised = false;
   @override
   void initState() {
     super.initState();
@@ -52,77 +53,58 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Products list'),
-      ),
-      body: isLoading
-          ? Center(child: CircularProgressIndicator())
-          : ListView.builder(
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-                return Container(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(40.0),
-                        child: SizedBox(
-                          height: 400,
-                          width: 300,
-                          child: product['image_url'] != null
-                              ? Image.network(
-                                  product['image_url'],
-                                  // width: 50,
-                                  // height: 50,
-                                  fit: BoxFit.cover,
-                                )
-                              : Icon(
-                                  Icons.image_not_supported,
-                                  size: 100,
-                                ),
-                        ),
-                      ),
-                      Column(
-                        children: [
-                          Text(
-                            'name:${product['name']}',
-                            style: TextStyle(fontSize: 20),
+        appBar: AppBar(
+          title: Text('Products list'),
+        ),
+        body: isLoading
+            ? Center(child: CircularProgressIndicator())
+            : ListView.builder(
+                itemCount: products.length,
+                itemBuilder: (context, index) {
+                  final product = products[index];
+                  return Container(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(40.0),
+                          child: SizedBox(
+                            height: 400,
+                            width: 400,
+                            child: product['image_url'] != null
+                                ? Image.network(
+                                    product['image_url'],
+                                    fit: BoxFit.cover,
+                                  )
+                                : const Icon(
+                                    Icons.image_not_supported,
+                                    size: 100,
+                                  ),
                           ),
-                          Text('price:${product['price']} USD'),
-                          Text('description:${product['description']} '),
-                        ],
-                      )
-                    ],
-                  ),
-                );
-
-                // ListTile(
-                //   title: Text(product['name']),
-                //   subtitle: Text('${product['price']} USD'),
-                //   leading: product['image_url'] != null
-                //       ? Image.network(
-                //           product['image_url'],
-                //           width: 50,
-                //           height: 50,
-                //           fit: BoxFit.cover,
-                //         )
-                //       : Icon(Icons.image_not_supported),
-                //   trailing: IconButton(
-                //     icon: Icon(Icons.delete),
-                //     onPressed: () {
-                //       deleteProduct(product['id']);
-                //     },
-                //   ),
-                // );
-              },
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Modular.to.pushNamed(Routes.home.getRoute(Routes.home.products));
-        },
-        child: Icon(Icons.add),
-      ),
-    );
+                        ),
+                        Column(
+                          children: [
+                            Text(
+                              'name:${product['name']}',
+                              style: TextStyle(fontSize: 20),
+                            ),
+                            Text('price:${product['price']} USD'),
+                            Text('description:${product['description']} '),
+                          ],
+                        )
+                      ],
+                    ),
+                  );
+                },
+              ),
+        floatingActionButton: isAuthorised
+            ? FloatingActionButton(
+                onPressed: () {
+                  Modular.to
+                      .pushNamed(Routes.home.getRoute(Routes.home.products));
+                },
+                child: Icon(Icons.add),
+              )
+            : null);
   }
 }
