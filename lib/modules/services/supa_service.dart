@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProductService {
@@ -6,12 +8,14 @@ class ProductService {
 
   ProductService(this.supabase);
 
-  Future<String?> uploadImage(File imageFile) async {
+  Future<String?> uploadImage(PlatformFile imageFile) async {
     final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
 
-    final response = await supabase.storage.from('images').upload(
+    Uint8List fileBytes = imageFile.bytes!;
+
+    final response = await supabase.storage.from('images').uploadBinary(
           uniqueFileName,
-          imageFile,
+          fileBytes,
         );
 
     if (response.isNotEmpty) {
@@ -55,6 +59,18 @@ class ProductService {
     }
   }
 
+  Future<void> deleteProduct({required String productId}) async {
+    final response =
+        await supabase.from('products').delete().eq('id', productId);
+
+    if (response.error == null) {
+      print('Product deleted successfully!');
+    } else {
+      print('Error deleting product: ${response.error?.message}');
+      throw Exception('Error deleting product');
+    }
+  }
+
   Future<void> signUpWithEmail(
       {required String email, required String password}) async {
     final response = await supabase.auth.signUp(
@@ -80,18 +96,6 @@ class ProductService {
       print("Вход успешен! Токен: ${response.session!.accessToken}");
     } else {
       print("Ошибка входа: ${response.session!.isExpired}");
-    }
-  }
-
-  Future<void> deleteProduct({required String productId}) async {
-    final response =
-        await supabase.from('products').delete().eq('id', productId);
-
-    if (response.error == null) {
-      print('Product deleted successfully!');
-    } else {
-      print('Error deleting product: ${response.error?.message}');
-      throw Exception('Error deleting product');
     }
   }
 }

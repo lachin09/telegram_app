@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_modular/flutter_modular.dart';
@@ -13,26 +15,37 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
-  File? selectedImage;
+  // File? selectedImage;
   final picker = ImagePicker();
   bool isLoading = false;
-
+  PlatformFile? _imageFile;
   final productService = Modular.get<ProductService>();
 
-  Future<void> pickImage() async {
+  Future<void> pickImageWeb() async {
     try {
-      final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-      if (pickedFile != null) {
-        setState(() {
-          selectedImage = File(pickedFile.path);
-        });
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error picking image: $e')),
-      );
-    }
+      FilePickerResult? result =
+          await FilePicker.platform.pickFiles(type: FileType.image);
+      if (result == null) return;
+      setState(() {
+        _imageFile = result.files.first;
+      });
+    } catch (e) {}
   }
+
+  // Future<void> pickImage() async {
+  //   try {
+  //     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+  //     if (pickedFile != null) {
+  //       setState(() {
+  //         selectedImage = File(pickedFile.path);
+  //       });
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error picking image: $e')),
+  //     );
+  //   }
+  // }
 
   Future<void> saveProduct() async {
     final name = nameController.text.trim();
@@ -53,8 +66,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
     String? imageUrl;
 
     try {
-      if (selectedImage != null) {
-        imageUrl = await productService.uploadImage(selectedImage!);
+      if (_imageFile != null) {
+        imageUrl = await productService.uploadImage(_imageFile!);
         if (imageUrl == null) {
           throw Exception('Image uploading error');
         }
@@ -75,10 +88,10 @@ class _AddProductScreenState extends State<AddProductScreen> {
       priceController.clear();
       descriptionController.clear();
       setState(() {
-        selectedImage = null;
+        _imageFile = null;
       });
 
-      Modular.to.pop();
+      Modular.to.pop(true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error adding product: $e')),
@@ -120,7 +133,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
               ),
               SizedBox(height: 10),
               GestureDetector(
-                onTap: pickImage,
+                onTap: pickImageWeb,
                 child: Container(
                   height: 150,
                   width: double.infinity,
@@ -128,12 +141,14 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: selectedImage == null
+                  child: _imageFile == null
                       ? Center(child: Text('Tap to choose an image'))
                       : Stack(
                           fit: StackFit.expand,
                           children: [
-                            Image.file(selectedImage!, fit: BoxFit.cover),
+                            if (_imageFile != null)
+                              Image.memory(
+                                  Uint8List.fromList(_imageFile!.bytes!)),
                             Positioned(
                               right: 10,
                               top: 10,
@@ -141,7 +156,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                 icon: Icon(Icons.close, color: Colors.red),
                                 onPressed: () {
                                   setState(() {
-                                    selectedImage = null;
+                                    _imageFile = null;
                                   });
                                 },
                               ),
