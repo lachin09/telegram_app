@@ -40,6 +40,7 @@ dependencies:
   flutter_modular:  5.0.3
   http: ^1.2.2
   file_picker: ^8.1.7
+  flutter_screenutil: ^5.9.3
 
 dev_dependencies:
   flutter_test:

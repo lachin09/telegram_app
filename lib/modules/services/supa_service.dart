@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -97,5 +96,9 @@ class ProductService {
     } else {
       print("Ошибка входа: ${response.session!.isExpired}");
     }
+  }
+
+  Future<void> logOut() async {
+    final response = await supabase.auth.signOut();
   }
 }

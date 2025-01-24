@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:supa_app/modules/home/components/product_list_view.dart';
 
 import 'package:supa_app/modules/services/supa_service.dart';
 import 'package:supa_app/routes/routes.dart';

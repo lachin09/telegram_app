@@ -7,10 +7,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProductListScreen extends StatefulWidget {
   @override
-  _ProductListScreenState createState() => _ProductListScreenState();
+  ProductListScreenState createState() => ProductListScreenState();
 }
 
-class _ProductListScreenState extends State<ProductListScreen> {
+class ProductListScreenState extends State<ProductListScreen> {
   final productService = Modular.get<ProductService>();
   List<Map<String, dynamic>> products = [];
   bool isLoading = true;
@@ -93,10 +93,11 @@ class _ProductListScreenState extends State<ProductListScreen> {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
+            SizedBox(
+              height: 300,
               child: Column(
                 children: [
-                  Text(
+                  const Text(
                     "Burada sizin reklam ola biler!!",
                     style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                   ),
@@ -106,17 +107,15 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             Modular.to.pushNamed(
                                 Routes.home.getRoute(Routes.home.products));
                           },
-                          child: Text(
+                          child: const Text(
                             "Tap to Add product",
-                            style: TextStyle(fontSize: 40),
                           ))
-                      : Text("Sign in to add prodcut")
+                      : const Text("Sign in to add prodcut")
                 ],
               ),
-              height: 300,
             ),
             Container(
-              height: 1000,
+              height: MediaQuery.of(context).size.height * 0.8,
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : products.isEmpty
@@ -128,6 +127,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             crossAxisCount: (screenWidth ~/ 200).clamp(2, 4),
                             crossAxisSpacing: 8,
                             mainAxisSpacing: 8,
+                            childAspectRatio: 0.75,
                           ),
                           itemCount: products.length,
                           itemBuilder: (BuildContext context, int index) {
@@ -175,61 +175,69 @@ class ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Stack(children: [
-            IconButton(onPressed: onDelete, icon: Icon(Icons.cancel)),
-            SizedBox(
-              height: 250,
-              child: imageUrl != null
-                  ? Image.network(
-                      imageUrl!,
-                      fit: BoxFit.cover,
-                      width: double.infinity,
-                    )
-                  : Center(child: Icon(Icons.image_not_supported, size: 100)),
-            ),
-          ]),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: "Name: ",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black),
+          AspectRatio(
+            aspectRatio: 1.2,
+            child: imageUrl != null
+                ? Image.network(
+                    imageUrl!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                  )
+                : const Center(
+                    child: Icon(Icons.image_not_supported, size: 50),
                   ),
-                  TextSpan(
-                    text: name,
-                    style: TextStyle(color: Colors.amber),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: RichText(
-              text: TextSpan(
-                children: [
-                  TextSpan(
-                    text: "Price: ",
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold, color: Colors.black),
-                  ),
-                  TextSpan(
-                    text: price,
-                    style: TextStyle(color: Colors.amber),
-                  ),
-                  TextSpan(text: " USD", style: TextStyle(color: Colors.black)),
-                ],
-              ),
-            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(
-              description,
-              style: TextStyle(fontSize: 12, color: Colors.grey),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: "Name: ",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: name,
+                        style: const TextStyle(
+                          color: Colors.amber,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 4),
+                RichText(
+                  text: TextSpan(
+                    children: [
+                      const TextSpan(
+                        text: "Price: ",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, color: Colors.black),
+                      ),
+                      TextSpan(
+                        text: price,
+                        style: TextStyle(color: Colors.amber),
+                      ),
+                      const TextSpan(
+                        text: " USD",
+                        style: TextStyle(color: Colors.black),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ),
         ],
