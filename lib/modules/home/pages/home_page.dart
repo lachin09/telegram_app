@@ -42,16 +42,38 @@ class ProductListScreenState extends State<ProductListScreen> {
   }
 
   Future<void> deleteProduct(String productId) async {
-    try {
-      await productService.deleteProduct(productId: productId);
-      await fetchProducts();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Продукт удалён успешно!')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Ошибка при удалении продукта: $e')),
-      );
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Confirmation!'),
+          content: Text('Are you sure want to delete the product?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      try {
+        await productService.deleteProduct(productId: productId);
+        await fetchProducts();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Продукт удалён успешно!')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Ошибка при удалении продукта: $e')),
+        );
+      }
     }
   }
 
@@ -62,7 +84,7 @@ class ProductListScreenState extends State<ProductListScreen> {
     return Scaffold(
       backgroundColor: const Color.fromARGB(255, 220, 216, 216),
       appBar: AppBar(
-        title: Text('Products list'),
+        title: Text('H A L A L   S H O P'),
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search_sharp))],
       ),
       drawer: Drawer(
@@ -175,18 +197,36 @@ class ProductCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          AspectRatio(
-            aspectRatio: 1.2,
-            child: imageUrl != null
-                ? Image.network(
-                    imageUrl!,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                  )
-                : const Center(
-                    child: Icon(Icons.image_not_supported, size: 50),
-                  ),
-          ),
+          Stack(children: [
+            AspectRatio(
+                aspectRatio: 1.2,
+                child: imageUrl != null
+                    ? Image.network(
+                        imageUrl!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                      )
+                    : const Center(
+                        child: Icon(Icons.image_not_supported, size: 50),
+                      )),
+            Positioned(
+              top: 8,
+              right: 8,
+              child: GestureDetector(
+                  onTap: onDelete,
+                  child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.red.withOpacity(0.8), // Фон кнопки
+                        shape: BoxShape.circle,
+                      ),
+                      padding: EdgeInsets.all(8), // Внутренний отступ
+                      child: Icon(
+                        Icons.close, // Иконка удаления
+                        color: Colors.white,
+                        size: 20,
+                      ))),
+            )
+          ]),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(

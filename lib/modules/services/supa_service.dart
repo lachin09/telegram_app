@@ -58,15 +58,31 @@ class ProductService {
     }
   }
 
-  Future<void> deleteProduct({required String productId}) async {
-    final response =
-        await supabase.from('products').delete().eq('id', productId);
+  // Future<void> deleteProduct({required String productId}) async {
+  //   final response =
+  //       await supabase.from('products').delete().eq('id', productId);
 
-    if (response.error == null) {
+  //   if (response.error == null) {
+  //     print('Product deleted successfully!');
+  //   } else {
+  //     print('Error deleting product: ${response.error?.message}');
+  //     throw Exception('Error deleting product');
+  //   }
+  // }
+  Future<void> deleteProduct({required String productId}) async {
+    try {
+      final response =
+          await supabase.from('products').delete().eq('id', productId).select();
+
+      if (response == null || (response as List).isEmpty) {
+        print('No product found with the given ID.');
+        throw Exception('Product not found');
+      }
+
       print('Product deleted successfully!');
-    } else {
-      print('Error deleting product: ${response.error?.message}');
-      throw Exception('Error deleting product');
+    } catch (e) {
+      print('Unexpected error: $e');
+      throw Exception('Unexpected error: $e');
     }
   }
 
