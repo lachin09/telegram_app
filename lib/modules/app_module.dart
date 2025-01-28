@@ -1,6 +1,6 @@
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:supa_app/modules/home/home_module.dart';
-import 'package:supa_app/modules/login_module/login_modul.dart';
+import 'package:supa_app/modules/login_module/login_module.dart';
 import 'package:supa_app/routes/routes.dart';
 
 class AppModule extends Module {
@@ -14,7 +14,7 @@ class AppModule extends Module {
     ),
     ModuleRoute(
       Routes.login.module,
-      module: LoginModul(),
+      module: LoginModule(),
     ),
   ];
 }

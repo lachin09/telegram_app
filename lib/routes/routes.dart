@@ -15,6 +15,7 @@ class _Home extends RouteClass {
   String module = "/home";
   String home = '/';
   String products = "/products";
+  String search = '/search';
 }
 
 abstract class RouteClass {

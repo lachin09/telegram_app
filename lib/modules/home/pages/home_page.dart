@@ -1,26 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supa_app/modules/home/components/product_list_view.dart';
 
 import 'package:supa_app/modules/services/supa_service.dart';
 import 'package:supa_app/routes/routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProductListScreen extends StatefulWidget {
+  const ProductListScreen({super.key});
+
   @override
   ProductListScreenState createState() => ProductListScreenState();
 }
 
 class ProductListScreenState extends State<ProductListScreen> {
   final productService = Modular.get<ProductService>();
-  List<Map<String, dynamic>> products = [];
+  List<dynamic> products = [];
   bool isLoading = true;
   final user = Supabase.instance.client.auth.currentUser;
   bool isAuth = Supabase.instance.client.auth.currentUser != null;
+  String? error;
+
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     fetchProducts();
+  }
+
+  Future<void> searchProduct(String query) async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+    try {
+      if (query.isEmpty) {
+        fetchProducts();
+      } else {
+        final searchProducts = await productService.searchProducts(query);
+        setState(() {
+          products = searchProducts;
+        });
+      }
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 
   Future<void> fetchProducts() async {
@@ -85,7 +117,45 @@ class ProductListScreenState extends State<ProductListScreen> {
       backgroundColor: const Color.fromARGB(255, 220, 216, 216),
       appBar: AppBar(
         title: Text('H A L A L   S H O P'),
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.search_sharp))],
+        actions: [
+          IconButton(
+              onPressed: () {
+                // showDialog(
+                //   context: context,
+                //   builder: (context) {
+                //     return AlertDialog(
+                //       title: const Text('Search Products'),
+                //       content: SizedBox(
+                //         height: 150.h,
+                //         child: Column(
+                //           children: [
+                //             TextField(
+                //               controller: searchController,
+                //               decoration: InputDecoration(
+                //                 hintText: 'Enter product name...',
+                //                 suffixIcon: IconButton(
+                //                   icon: const Icon(Icons.search),
+                //                   onPressed: () {
+                //                     searchProduct(searchController.text);
+                //                     Navigator.of(context).pop();
+                //                   },
+                //                 ),
+                //               ),
+                //               onSubmitted: (query) {
+                //                 searchProduct(query);
+                //                 Navigator.of(context).pop();
+                //               },
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     );
+                //   },
+                // );
+                Modular.to.pushNamed(Routes.home.getRoute(Routes.home.search));
+              },
+              icon: Icon(Icons.search_sharp))
+        ],
       ),
       drawer: Drawer(
         child: ListView(
@@ -94,6 +164,12 @@ class ProductListScreenState extends State<ProductListScreen> {
             ListTile(
               leading: Icon(Icons.settings),
               title: Text("S E T T I N G S"),
+              trailing: Icon(Icons.forward),
+              onTap: () {},
+            ),
+            ListTile(
+              leading: Icon(Icons.category_outlined),
+              title: Text("C A T E G O R I E S"),
               trailing: Icon(Icons.forward),
               onTap: () {},
             ),
@@ -161,6 +237,7 @@ class ProductListScreenState extends State<ProductListScreen> {
                               imageUrl: product['image_url'],
                               name: product['name'] ?? 'No Name',
                               price: '${product['price'] ?? '0.0'}',
+                              category: '${product['category_id'] ?? '0.0'}',
                               description:
                                   product['description'] ?? 'No Description',
                             );
@@ -169,118 +246,6 @@ class ProductListScreenState extends State<ProductListScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class ProductCard extends StatelessWidget {
-  final String? imageUrl;
-  final String name;
-  final String price;
-  final String description;
-  final VoidCallback onDelete;
-
-  const ProductCard({
-    Key? key,
-    required this.imageUrl,
-    required this.name,
-    required this.price,
-    required this.description,
-    required this.onDelete,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: EdgeInsets.all(8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Stack(children: [
-            AspectRatio(
-                aspectRatio: 1.2,
-                child: imageUrl != null
-                    ? Image.network(
-                        imageUrl!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                      )
-                    : const Center(
-                        child: Icon(Icons.image_not_supported, size: 50),
-                      )),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: GestureDetector(
-                  onTap: onDelete,
-                  child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.8), // Фон кнопки
-                        shape: BoxShape.circle,
-                      ),
-                      padding: EdgeInsets.all(8), // Внутренний отступ
-                      child: Icon(
-                        Icons.close, // Иконка удаления
-                        color: Colors.white,
-                        size: 20,
-                      ))),
-            )
-          ]),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: "Name: ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      TextSpan(
-                        text: name,
-                        style: const TextStyle(
-                          color: Colors.amber,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 4),
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      const TextSpan(
-                        text: "Price: ",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, color: Colors.black),
-                      ),
-                      TextSpan(
-                        text: price,
-                        style: TextStyle(color: Colors.amber),
-                      ),
-                      const TextSpan(
-                        text: " USD",
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

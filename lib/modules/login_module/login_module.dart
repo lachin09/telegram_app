@@ -5,7 +5,7 @@ import 'package:supa_app/modules/services/supa_service.dart';
 import 'package:supa_app/routes/routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginModul extends Module {
+class LoginModule extends Module {
   @override
   final List<Bind> binds = [
     Bind.singleton((i) => Supabase.instance.client),

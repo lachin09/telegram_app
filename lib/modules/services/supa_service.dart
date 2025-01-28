@@ -25,18 +25,19 @@ class ProductService {
     }
   }
 
-  Future<void> saveProduct({
-    required String name,
-    required double price,
-    required String description,
-    String? imageUrl,
-  }) async {
+  Future<void> saveProduct(
+      {required String name,
+      required double price,
+      required String description,
+      String? imageUrl,
+      required String category_id}) async {
     final response = await supabase.from('products').insert({
       'name': name,
       'price': price,
       'description': description,
       'image_url': imageUrl,
       'user_id': supabase.auth.currentUser?.id,
+      "category_id": category_id
     });
 
     if (response.error == null) {
@@ -58,23 +59,12 @@ class ProductService {
     }
   }
 
-  // Future<void> deleteProduct({required String productId}) async {
-  //   final response =
-  //       await supabase.from('products').delete().eq('id', productId);
-
-  //   if (response.error == null) {
-  //     print('Product deleted successfully!');
-  //   } else {
-  //     print('Error deleting product: ${response.error?.message}');
-  //     throw Exception('Error deleting product');
-  //   }
-  // }
   Future<void> deleteProduct({required String productId}) async {
     try {
       final response =
           await supabase.from('products').delete().eq('id', productId).select();
 
-      if (response == null || (response as List).isEmpty) {
+      if ((response as List).isEmpty) {
         print('No product found with the given ID.');
         throw Exception('Product not found');
       }
@@ -83,6 +73,23 @@ class ProductService {
     } catch (e) {
       print('Unexpected error: $e');
       throw Exception('Unexpected error: $e');
+    }
+  }
+
+  Future<List<dynamic>> searchProducts(String query) async {
+    try {
+      final response = await supabase
+          .from("products")
+          .select("*")
+          .textSearch("fts", query, config: "simple");
+
+      if (response.isEmpty) {
+        throw Exception('Ничего не найдено');
+      }
+
+      return response;
+    } catch (e) {
+      throw Exception('Ошибка поиска: $e');
     }
   }
 
@@ -114,7 +121,7 @@ class ProductService {
     }
   }
 
-  Future<void> logOut() async {
-    final response = await supabase.auth.signOut();
-  }
+//   Future<void> logOut() async {
+//     final response = await supabase.auth.signOut();
+//   }
 }

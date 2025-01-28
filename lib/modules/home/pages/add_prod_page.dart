@@ -14,6 +14,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController categoryController = TextEditingController();
   // File? selectedImage;
   final picker = ImagePicker();
   bool isLoading = false;
@@ -50,6 +51,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
     final name = nameController.text.trim();
     final price = double.tryParse(priceController.text.trim()) ?? 0.0;
     final description = descriptionController.text.trim();
+    final categoryId = categoryController.text.trim();
 
     if (name.isEmpty || price <= 0 || description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -73,11 +75,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
       }
 
       await productService.saveProduct(
-        name: name,
-        price: price,
-        description: description,
-        imageUrl: imageUrl,
-      );
+          name: name,
+          price: price,
+          description: description,
+          imageUrl: imageUrl,
+          category_id: categoryId);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Product added successfully!')),
@@ -86,6 +88,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
       nameController.clear();
       priceController.clear();
       descriptionController.clear();
+      categoryController.clear();
       setState(() {
         _imageFile = null;
       });
@@ -128,6 +131,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
               TextField(
                 controller: descriptionController,
                 decoration: InputDecoration(labelText: 'Description'),
+                maxLines: 3,
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: categoryController,
+                decoration: InputDecoration(labelText: 'Category'),
                 maxLines: 3,
               ),
               SizedBox(height: 10),
