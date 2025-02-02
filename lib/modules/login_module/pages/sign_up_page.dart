@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
+import 'package:supa_app/modules/login_module/services/auth_service.dart';
 
-import 'package:supa_app/modules/services/supa_service.dart';
 import 'package:supa_app/routes/routes.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -15,9 +15,11 @@ class _SignUpPageState extends State<SignUpPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
-  final productService = Modular.get<ProductService>();
 
-  Future<void> signIn() async {
+  final AuthService authService = Modular.get<AuthService>();
+
+  Future<void> signUp() async {
+    // Переименовано в signUp
     setState(() {
       isLoading = true;
     });
@@ -27,17 +29,25 @@ class _SignUpPageState extends State<SignUpPage> {
 
     if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text("fill the fields")));
+          .showSnackBar(SnackBar(content: Text("Please fill in all fields")));
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
     try {
-      await productService.signUpWithEmail(email: email, password: password);
+      await authService.signUpWithEmail(email, password);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('User registered successfully!')),
       );
       Modular.to.pushNamed(Routes.home.getRoute(Routes.home.home));
     } catch (e) {
-      print("signing  error:$e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Registration failed: $e')),
+      );
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -45,7 +55,7 @@ class _SignUpPageState extends State<SignUpPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Registiration"),
+        title: const Text("Registration"),
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -54,28 +64,26 @@ class _SignUpPageState extends State<SignUpPage> {
               TextField(
                 controller: emailController,
                 decoration: const InputDecoration(
-                  labelText: 'Add email',
+                  labelText: 'Email',
                   border: OutlineInputBorder(),
                 ),
               ),
-              const SizedBox(
-                height: 20,
-              ),
+              const SizedBox(height: 20),
               TextField(
                 controller: passwordController,
                 obscureText: true,
                 decoration: const InputDecoration(
-                  labelText: 'Add password',
+                  labelText: 'Password',
                   border: OutlineInputBorder(),
                 ),
               ),
+              const SizedBox(height: 20),
               isLoading
                   ? CircularProgressIndicator()
-                  : TextButton(
-                      onPressed: () {
-                        signIn();
-                      },
-                      child: Text("register")),
+                  : ElevatedButton(
+                      onPressed: signUp, // Поменял на signUp
+                      child: const Text("Register"),
+                    ),
               TextButton(
                 onPressed: () {
                   Modular.to
@@ -85,15 +93,15 @@ class _SignUpPageState extends State<SignUpPage> {
                   text: const TextSpan(
                     children: [
                       TextSpan(
-                        text: "do you have an account?  ",
+                        text: "Already have an account?  ",
                         style: TextStyle(
-                          color: (const Color.fromARGB(255, 83, 80, 80)),
+                          color: Color.fromARGB(255, 83, 80, 80),
                         ),
                       ),
                       TextSpan(
-                        text: "go to SignIn",
+                        text: "Sign In",
                         style: TextStyle(
-                          color: const Color.fromARGB(255, 10, 9, 9),
+                          color: Color.fromARGB(255, 10, 9, 9),
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -101,13 +109,12 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
               ),
-              // child: Text("do you have an account? got to SignIn")),
               TextButton(
                   onPressed: () {
                     Modular.to
                         .pushNamed(Routes.home.getRoute(Routes.home.home));
                   },
-                  child: Text("continue as guest")),
+                  child: const Text("Continue as guest")),
             ],
           ),
         ),

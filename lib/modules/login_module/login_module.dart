@@ -7,10 +7,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginModule extends Module {
   @override
-  final List<Bind> binds = [
-    Bind.singleton((i) => Supabase.instance.client),
-    Bind.singleton((i) => ProductService(i.get<SupabaseClient>())),
-  ];
+  final List<Bind> binds = [];
   @override
   final List<ModularRoute> routes = [
     ChildRoute(Routes.login.signUp, child: (_, args) => const SignUpPage()),

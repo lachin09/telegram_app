@@ -6,10 +6,10 @@ class ProductSearchPage extends StatefulWidget {
   const ProductSearchPage({super.key});
 
   @override
-  _ProductSearchPageState createState() => _ProductSearchPageState();
+  ProductSearchPageState createState() => ProductSearchPageState();
 }
 
-class _ProductSearchPageState extends State<ProductSearchPage> {
+class ProductSearchPageState extends State<ProductSearchPage> {
   final TextEditingController _searchController = TextEditingController();
   List<dynamic> _products = [];
   bool _isLoading = false;
@@ -22,13 +22,11 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
     });
 
     try {
-      // Step 1: Search products by name
       final nameResponse = await Supabase.instance.client
           .from("products")
           .select("*")
           .ilike("name", "%$query%");
 
-      // Step 2: Find all products in the same categories as the name search results
       final categoryIds = nameResponse
           .map((product) => product['category_id'])
           .toSet()
@@ -38,7 +36,7 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
 
       // Only fetch products by category if we have some category ids
       if (categoryIds.isNotEmpty) {
-        final categoriesQuery = categoryIds.map((categoryId) {
+        categoryIds.map((categoryId) {
           return "category_id.eq.$categoryId";
         }).join('&');
 
@@ -116,13 +114,13 @@ class _ProductSearchPageState extends State<ProductSearchPage> {
                       itemBuilder: (context, index) {
                         final product = _products[index];
                         return ProductCard(
-                          onDelete: null,
                           imageUrl: product['image_url'],
-                          name: product['name'] ?? 'No Name',
-                          price: '${product['price'] ?? '0.0'}',
-                          category: "${product['category_id'] ?? '0.0'}",
-                          description:
-                              product['description'] ?? 'No Description',
+                          name: product['name'],
+                          price: product['price'].toString(),
+                          description: product['description'],
+                          category: product['category_id'].toString(),
+                          onDelete: () {},
+                          productId: product['id'], // Передаем ID продукта
                         );
                       },
                     ),

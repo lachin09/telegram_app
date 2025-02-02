@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-
-import 'package:supa_app/modules/services/supa_service.dart';
-import 'package:supa_app/routes/routes.dart';
+import 'package:supa_app/modules/login_module/services/auth_service.dart';
 
 class SignInPage extends StatefulWidget {
   const SignInPage({super.key});
@@ -15,7 +13,8 @@ class _SignInPageState extends State<SignInPage> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   bool isLoading = false;
-  final productService = Modular.get<ProductService>();
+
+  final AuthService authService = Modular.get<AuthService>();
 
   Future<void> signIn() async {
     setState(() {
@@ -36,11 +35,12 @@ class _SignInPageState extends State<SignInPage> {
     }
 
     try {
-      await productService.signInWithEmail(email: email, password: password);
+      await authService.signInWithEmail(email, password);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Logged in successfully!")),
       );
-      Modular.to.pushNamed(Routes.home.getRoute(Routes.home.home));
+
+      Modular.to.pushNamed('/home');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Login failed: $e")),

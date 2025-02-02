@@ -3,7 +3,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_modular/flutter_modular.dart';
-import 'package:supa_app/modules/services/supa_service.dart';
+import 'package:supa_app/modules/home/services/product_service.dart';
 
 class AddProductScreen extends StatefulWidget {
   @override
@@ -15,11 +15,11 @@ class _AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
-  // File? selectedImage;
   final picker = ImagePicker();
   bool isLoading = false;
   PlatformFile? _imageFile;
   final productService = Modular.get<ProductService>();
+  final ImageService imageService = Modular.get<ImageService>();
 
   Future<void> pickImageWeb() async {
     try {
@@ -29,23 +29,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
       setState(() {
         _imageFile = result.files.first;
       });
-    } catch (e) {}
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error picking image: $e')),
+      );
+    }
   }
-
-  // Future<void> pickImage() async {
-  //   try {
-  //     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-  //     if (pickedFile != null) {
-  //       setState(() {
-  //         selectedImage = File(pickedFile.path);
-  //       });
-  //     }
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('Error picking image: $e')),
-  //     );
-  //   }
-  // }
 
   Future<void> saveProduct() async {
     final name = nameController.text.trim();
@@ -68,7 +57,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     try {
       if (_imageFile != null) {
-        imageUrl = await productService.uploadImage(_imageFile!);
+        imageUrl = await imageService.uploadImage(_imageFile!);
         if (imageUrl == null) {
           throw Exception('Image uploading error');
         }
@@ -79,7 +68,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
           price: price,
           description: description,
           imageUrl: imageUrl,
-          category_id: categoryId);
+          categoryId: categoryId);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Product added successfully!')),
@@ -154,9 +143,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                       : Stack(
                           fit: StackFit.expand,
                           children: [
-                            if (_imageFile != null)
-                              Image.memory(
-                                  Uint8List.fromList(_imageFile!.bytes!)),
+                            Image.memory(
+                                Uint8List.fromList(_imageFile!.bytes!)),
                             Positioned(
                               right: 10,
                               top: 10,
