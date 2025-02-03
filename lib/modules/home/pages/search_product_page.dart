@@ -34,23 +34,19 @@ class ProductSearchPageState extends State<ProductSearchPage> {
 
       List<dynamic> categoryResponse = [];
 
-      // Only fetch products by category if we have some category ids
       if (categoryIds.isNotEmpty) {
         categoryIds.map((categoryId) {
           return "category_id.eq.$categoryId";
         }).join('&');
 
-        // Fetch products that match any of the category ids found in the first query
         categoryResponse = await Supabase.instance.client
             .from("products")
             .select("*")
             .filter('category_id', 'in', categoryIds); // Use filter with 'in'
       }
 
-      // Combine both the name search and category search results
       final allProducts = [...nameResponse, ...categoryResponse];
 
-      // Remove duplicates
       final uniqueProducts = allProducts.toSet().toList();
 
       setState(() {
@@ -95,9 +91,9 @@ class ProductSearchPageState extends State<ProductSearchPage> {
               ),
             ),
             const SizedBox(height: 16),
-            // Show loading indicator
+
             if (_isLoading) const Center(child: CircularProgressIndicator()),
-            // Show error message
+
             if (_error != null)
               Center(
                 child: Text(
@@ -105,7 +101,7 @@ class ProductSearchPageState extends State<ProductSearchPage> {
                   style: const TextStyle(color: Colors.red),
                 ),
               ),
-            // Display product list
+
             Expanded(
               child: _products.isEmpty && !_isLoading
                   ? const Center(child: Text("No products found"))
@@ -120,7 +116,7 @@ class ProductSearchPageState extends State<ProductSearchPage> {
                           description: product['description'],
                           category: product['category_id'].toString(),
                           onDelete: () {},
-                          productId: product['id'], // Передаем ID продукта
+                          productId: product['id'],
                         );
                       },
                     ),

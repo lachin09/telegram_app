@@ -1,7 +1,6 @@
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:supa_app/modules/home/pages/add_prod_page.dart';
-import 'package:supa_app/modules/home/pages/category_page.dart';
-import 'package:supa_app/modules/home/pages/home_page.dart';
+import 'package:supa_app/modules/home/pages/bottom_bar.dart';
 import 'package:supa_app/modules/home/pages/product_details_page.dart';
 import 'package:supa_app/modules/home/pages/search_product_page.dart';
 import 'package:supa_app/routes/routes.dart';

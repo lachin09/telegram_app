@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:supa_app/modules/home/services/product_service.dart';
+import 'package:supa_app/modules/login_module/login_module.dart';
+import 'package:supa_app/routes/routes.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddProductScreen extends StatefulWidget {
   @override
@@ -20,6 +23,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   PlatformFile? _imageFile;
   final productService = Modular.get<ProductService>();
   final ImageService imageService = Modular.get<ImageService>();
+  bool isAuth = Supabase.instance.client.auth.currentUser != null;
 
   Future<void> pickImageWeb() async {
     try {
@@ -97,81 +101,98 @@ class _AddProductScreenState extends State<AddProductScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Add Product'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: InputDecoration(labelText: 'Product Name'),
-              ),
-              SizedBox(height: 10),
-              TextField(
-                controller: priceController,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                decoration: InputDecoration(labelText: 'Price'),
-              ),
-              SizedBox(height: 10),
-              TextField(
-                controller: descriptionController,
-                decoration: InputDecoration(labelText: 'Description'),
-                maxLines: 3,
-              ),
-              SizedBox(height: 10),
-              TextField(
-                controller: categoryController,
-                decoration: InputDecoration(labelText: 'Category'),
-                maxLines: 3,
-              ),
-              SizedBox(height: 10),
-              GestureDetector(
-                onTap: pickImageWeb,
-                child: Container(
-                  height: 150,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: _imageFile == null
-                      ? Center(child: Text('Tap to choose an image'))
-                      : Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            Image.memory(
-                                Uint8List.fromList(_imageFile!.bytes!)),
-                            Positioned(
-                              right: 10,
-                              top: 10,
-                              child: IconButton(
-                                icon: Icon(Icons.close, color: Colors.red),
-                                onPressed: () {
-                                  setState(() {
-                                    _imageFile = null;
-                                  });
-                                },
-                              ),
-                            ),
-                          ],
-                        ),
-                ),
-              ),
-              SizedBox(height: 20),
-              isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : ElevatedButton(
-                      onPressed: saveProduct,
-                      child: Text('Save Product'),
-                    ),
-            ],
-          ),
+        appBar: AppBar(
+          title: Text('Add Product'),
         ),
-      ),
-    );
+        body: isAuth
+            ? Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextField(
+                        controller: nameController,
+                        decoration: InputDecoration(labelText: 'Product Name'),
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        controller: priceController,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        decoration: InputDecoration(labelText: 'Price'),
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        controller: descriptionController,
+                        decoration: InputDecoration(labelText: 'Description'),
+                        maxLines: 3,
+                      ),
+                      SizedBox(height: 10),
+                      TextField(
+                        controller: categoryController,
+                        decoration: InputDecoration(labelText: 'Category'),
+                        maxLines: 3,
+                      ),
+                      SizedBox(height: 10),
+                      GestureDetector(
+                        onTap: pickImageWeb,
+                        child: Container(
+                          height: 150,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: _imageFile == null
+                              ? Center(child: Text('Tap to choose an image'))
+                              : Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    Image.memory(
+                                        Uint8List.fromList(_imageFile!.bytes!)),
+                                    Positioned(
+                                      right: 10,
+                                      top: 10,
+                                      child: IconButton(
+                                        icon: Icon(Icons.close,
+                                            color: Colors.red),
+                                        onPressed: () {
+                                          setState(() {
+                                            _imageFile = null;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : ElevatedButton(
+                              onPressed: saveProduct,
+                              child: Text('Save Product'),
+                            ),
+                    ],
+                  ),
+                ),
+              )
+            : Center(
+                child: InkWell(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("log in to add product!!"),
+                    TextButton(
+                        onPressed: () {
+                          Modular.to.pushNamed(
+                              Routes.login.getRoute(Routes.login.signUp));
+                        },
+                        child: Text("tap to register"))
+                  ],
+                ),
+              )));
   }
 }
