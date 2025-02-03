@@ -12,8 +12,8 @@ class BottomNavigator extends StatefulWidget {
 class _BottomNavigatorState extends State<BottomNavigator> {
   int _selectedIndex = 0;
   static List<Widget> screens = <Widget>[
-    ProductListScreen(),
-    AddProductScreen(),
+    const ProductListScreen(),
+    const AddProductScreen(),
   ];
   void _onItemSelected(int index) {
     setState(() {

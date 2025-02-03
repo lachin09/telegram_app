@@ -4,16 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter_modular/flutter_modular.dart';
 import 'package:supa_app/modules/home/services/product_service.dart';
-import 'package:supa_app/modules/login_module/login_module.dart';
 import 'package:supa_app/routes/routes.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AddProductScreen extends StatefulWidget {
+  const AddProductScreen({super.key});
+
   @override
-  _AddProductScreenState createState() => _AddProductScreenState();
+  AddProductScreenState createState() => AddProductScreenState();
 }
 
-class _AddProductScreenState extends State<AddProductScreen> {
+class AddProductScreenState extends State<AddProductScreen> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
@@ -34,6 +35,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
         _imageFile = result.files.first;
       });
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error picking image: $e')),
       );
@@ -48,7 +50,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
     if (name.isEmpty || price <= 0 || description.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Fill fields correctly!')),
+        const SnackBar(content: Text('Fill fields correctly!')),
       );
       return;
     }
@@ -74,8 +76,9 @@ class _AddProductScreenState extends State<AddProductScreen> {
           imageUrl: imageUrl,
           categoryId: categoryId);
 
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Product added successfully!')),
+        const SnackBar(content: Text('Product added successfully!')),
       );
 
       nameController.clear();
@@ -88,6 +91,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
 
       Modular.to.pop(true);
     } catch (e) {
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error adding product: $e')),
       );
@@ -102,7 +106,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text('Add Product'),
+          title: const Text('Add Product'),
         ),
         body: isAuth
             ? Padding(
@@ -113,28 +117,31 @@ class _AddProductScreenState extends State<AddProductScreen> {
                     children: [
                       TextField(
                         controller: nameController,
-                        decoration: InputDecoration(labelText: 'Product Name'),
+                        decoration:
+                            const InputDecoration(labelText: 'Product Name'),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       TextField(
                         controller: priceController,
-                        keyboardType:
-                            TextInputType.numberWithOptions(decimal: true),
-                        decoration: InputDecoration(labelText: 'Price'),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        decoration: const InputDecoration(labelText: 'Price'),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       TextField(
                         controller: descriptionController,
-                        decoration: InputDecoration(labelText: 'Description'),
+                        decoration:
+                            const InputDecoration(labelText: 'Description'),
                         maxLines: 3,
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       TextField(
                         controller: categoryController,
-                        decoration: InputDecoration(labelText: 'Category'),
+                        decoration:
+                            const InputDecoration(labelText: 'Category'),
                         maxLines: 3,
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       GestureDetector(
                         onTap: pickImageWeb,
                         child: Container(
@@ -145,7 +152,8 @@ class _AddProductScreenState extends State<AddProductScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: _imageFile == null
-                              ? Center(child: Text('Tap to choose an image'))
+                              ? const Center(
+                                  child: Text('Tap to choose an image'))
                               : Stack(
                                   fit: StackFit.expand,
                                   children: [
@@ -155,7 +163,7 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                       right: 10,
                                       top: 10,
                                       child: IconButton(
-                                        icon: Icon(Icons.close,
+                                        icon: const Icon(Icons.close,
                                             color: Colors.red),
                                         onPressed: () {
                                           setState(() {
@@ -168,12 +176,12 @@ class _AddProductScreenState extends State<AddProductScreen> {
                                 ),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       isLoading
-                          ? Center(child: CircularProgressIndicator())
+                          ? const Center(child: CircularProgressIndicator())
                           : ElevatedButton(
                               onPressed: saveProduct,
-                              child: Text('Save Product'),
+                              child: const Text('Save Product'),
                             ),
                     ],
                   ),
@@ -184,13 +192,13 @@ class _AddProductScreenState extends State<AddProductScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text("log in to add product!!"),
+                    const Text("log in to add product!!"),
                     TextButton(
                         onPressed: () {
                           Modular.to.pushNamed(
                               Routes.login.getRoute(Routes.login.signUp));
                         },
-                        child: Text("tap to register"))
+                        child: const Text("tap to register"))
                   ],
                 ),
               )));
