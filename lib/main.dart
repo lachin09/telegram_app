@@ -19,7 +19,7 @@ void main() async {
     module: AppModule(),
     child: const AppWidget(),
   ));
-  startTelegramBot();
+  // startTelegramBot();
 }
 
 class AppWidget extends StatelessWidget {

@@ -110,13 +110,14 @@ class ProductSearchPageState extends State<ProductSearchPage> {
                       itemBuilder: (context, index) {
                         final product = _products[index];
                         return ProductCard(
-                          imageUrl: product['image_url'],
+                          imageUrl: product['image_urls'],
                           name: product['name'],
                           price: product['price'].toString(),
                           description: product['description'],
                           category: product['category_id'].toString(),
                           onDelete: () {},
                           productId: product['id'],
+                          ownerId: product['user_id'],
                         );
                       },
                     ),

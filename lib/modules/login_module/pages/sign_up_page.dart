@@ -19,7 +19,6 @@ class _SignUpPageState extends State<SignUpPage> {
   final AuthService authService = Modular.get<AuthService>();
 
   Future<void> signUp() async {
-    // Переименовано в signUp
     setState(() {
       isLoading = true;
     });
@@ -59,63 +58,66 @@ class _SignUpPageState extends State<SignUpPage> {
       ),
       body: Center(
         child: SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: emailController,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 20),
-              TextField(
-                controller: passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 20),
-              isLoading
-                  ? CircularProgressIndicator()
-                  : ElevatedButton(
-                      onPressed: signUp, // Поменял на signUp
-                      child: const Text("Register"),
-                    ),
-              TextButton(
-                onPressed: () {
-                  Modular.to
-                      .pushNamed(Routes.login.getRoute(Routes.login.signIn));
-                },
-                child: RichText(
-                  text: const TextSpan(
-                    children: [
-                      TextSpan(
-                        text: "Already have an account?  ",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 83, 80, 80),
-                        ),
-                      ),
-                      TextSpan(
-                        text: "Sign In",
-                        style: TextStyle(
-                          color: Color.fromARGB(255, 10, 9, 9),
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ],
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                TextField(
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(),
                   ),
                 ),
-              ),
-              TextButton(
+                const SizedBox(height: 20),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Password',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                isLoading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                        onPressed: signUp,
+                        child: const Text("Register"),
+                      ),
+                TextButton(
                   onPressed: () {
                     Modular.to
-                        .pushNamed(Routes.home.getRoute(Routes.home.home));
+                        .pushNamed(Routes.login.getRoute(Routes.login.signIn));
                   },
-                  child: const Text("Continue as guest")),
-            ],
+                  child: RichText(
+                    text: const TextSpan(
+                      children: [
+                        TextSpan(
+                          text: "Already have an account?  ",
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 83, 80, 80),
+                          ),
+                        ),
+                        TextSpan(
+                          text: "Sign In",
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 10, 9, 9),
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                TextButton(
+                    onPressed: () {
+                      Modular.to
+                          .pushNamed(Routes.home.getRoute(Routes.home.home));
+                    },
+                    child: const Text("Continue as guest")),
+              ],
+            ),
           ),
         ),
       ),

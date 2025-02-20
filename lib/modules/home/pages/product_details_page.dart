@@ -3,11 +3,6 @@ import 'package:flutter_modular/flutter_modular.dart';
 import 'package:supa_app/modules/home/services/product_service.dart';
 
 class ProductDetailsPage extends StatefulWidget {
-  final int productId;
-
-  const ProductDetailsPage({required this.productId, Key? key})
-      : super(key: key);
-
   @override
   _ProductDetailsPageState createState() => _ProductDetailsPageState();
 }
@@ -17,11 +12,22 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Map<String, dynamic>? product;
   bool isLoading = true;
   String? error;
+  int? productId;
 
-  @override
   @override
   void initState() {
     super.initState();
+
+    productId = Modular.args.data as int?;
+    print("Received productId: $productId");
+
+    if (productId == null) {
+      setState(() {
+        error = "Ошибка: productId отсутствует";
+        isLoading = false;
+      });
+      return;
+    }
 
     fetchProductDetails();
   }
@@ -29,7 +35,7 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Future<void> fetchProductDetails() async {
     try {
       final productDetails =
-          await productService.fetchProductDetails(widget.productId);
+          await productService.fetchProductDetails(productId!);
       setState(() {
         product = productDetails;
         isLoading = false;
@@ -46,27 +52,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
   Widget build(BuildContext context) {
     if (isLoading) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text('Loading...'),
-        ),
+        appBar: AppBar(title: Text('Loading...')),
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (error != null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text('Error'),
-        ),
+        appBar: AppBar(title: Text('Error')),
         body: Center(child: Text('Error: $error')),
       );
     }
 
     if (product == null) {
       return Scaffold(
-        appBar: AppBar(
-          title: Text('Product Not Found'),
-        ),
+        appBar: AppBar(title: Text('Product Not Found')),
         body: Center(child: Text('Product not found')),
       );
     }
@@ -80,13 +80,21 @@ class _ProductDetailsPageState extends State<ProductDetailsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (product!['image_url'] != null)
-              Image.network(
-                product!['image_url'],
-                width: double.infinity,
-                height: 200,
-                fit: BoxFit.cover,
-              ),
+            if (product!['image_urls'] is List &&
+                (product!['image_urls'] as List).isNotEmpty)
+              SizedBox(
+                  height: 300,
+                  child: PageView.builder(
+                    itemCount: (product!['image_urls'] as List).length,
+                    itemBuilder: (context, index) {
+                      return Image.network(
+                        (product!['image_urls'] as List<dynamic>)[index]
+                            .toString(),
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      );
+                    },
+                  )),
             SizedBox(height: 16),
             Text(
               product!['name'],

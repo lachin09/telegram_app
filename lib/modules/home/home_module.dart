@@ -23,7 +23,7 @@ class HomeModule extends Module {
     ),
     ChildRoute(
       Routes.home.details,
-      child: (_, args) => ProductDetailsPage(productId: args.data),
+      child: (_, args) => ProductDetailsPage(),
     ),
   ];
 }

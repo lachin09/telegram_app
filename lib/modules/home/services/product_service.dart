@@ -6,7 +6,7 @@ abstract class IProductService {
       {required String name,
       required double price,
       required String description,
-      String? imageUrl,
+      List<String>? imageUrls,
       required String categoryId});
 
   Future<List<Map<String, dynamic>>> fetchProducts();
@@ -16,7 +16,7 @@ abstract class IProductService {
 }
 
 abstract class IImageService {
-  Future<String?> uploadImage(PlatformFile imageFile);
+  Future<List<String?>> uploadImages(List<PlatformFile> imageFiles);
 }
 
 class ProductService implements IProductService {
@@ -29,13 +29,13 @@ class ProductService implements IProductService {
       {required String name,
       required double price,
       required String description,
-      String? imageUrl,
+      List<String?>? imageUrls,
       required String categoryId}) async {
     final response = await supabase.from('products').insert({
       'name': name,
       'price': price,
       'description': description,
-      'image_url': imageUrl,
+      'image_urls': imageUrls ?? [],
       'user_id': supabase.auth.currentUser?.id,
       "category_id": categoryId
     });
@@ -50,6 +50,7 @@ class ProductService implements IProductService {
   @override
   Future<List<Map<String, dynamic>>> fetchProducts() async {
     final response = await supabase.from('products').select('*');
+    print("Raw response: $response");
     if (response.isEmpty) {
       throw Exception('Product fetching error.');
     }
@@ -58,9 +59,18 @@ class ProductService implements IProductService {
 
   @override
   Future<Map<String, dynamic>?> fetchProductDetails(int productId) async {
-    final response =
-        await supabase.from('products').select().eq('id', productId).single();
-    return response;
+    try {
+      final response = await supabase
+          .from('products')
+          .select()
+          .eq('id', productId)
+          .maybeSingle();
+
+      return response;
+    } catch (e) {
+      print("Ошибка при получении продукта: $e");
+      return null;
+    }
   }
 
   @override
@@ -103,19 +113,31 @@ class ImageService implements IImageService {
   ImageService(this.supabase);
 
   @override
-  Future<String?> uploadImage(PlatformFile imageFile) async {
-    final uniqueFileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
-    final fileBytes = imageFile.bytes!;
+  Future<List<String>> uploadImages(List<PlatformFile> imageFiles) async {
+    List<String> imageUrls = [];
 
-    final response = await supabase.storage.from('images').uploadBinary(
-          uniqueFileName,
-          fileBytes,
-        );
+    for (var imageFile in imageFiles) {
+      final uniqueFileName = "${DateTime.now().millisecondsSinceEpoch}.jpg";
+      final fileBytes = imageFile.bytes!;
 
-    if (response.isEmpty) {
-      throw Exception('Image upload failed');
+      print("Uploading file: $uniqueFileName");
+
+      final path = await supabase.storage
+          .from("images")
+          .uploadBinary(uniqueFileName, fileBytes);
+
+      if (path != null) {
+        final publicUrl =
+            'https://ptekcinizrbjxkrxwaqf.supabase.co/storage/v1/object/public/images/$uniqueFileName';
+
+        print("Uploaded URL: $publicUrl");
+        imageUrls.add(publicUrl);
+      } else {
+        print("Upload failed for: $uniqueFileName");
+      }
     }
 
-    return supabase.storage.from('images').getPublicUrl(uniqueFileName);
+    print("Final image URLs: $imageUrls");
+    return imageUrls;
   }
 }
